@@ -48,5 +48,9 @@ export class superCreep extends Creep {
         }
     }
 
+    move_to_nearest_healer(myHealers) {
+       this.moveTo(this.creep.findClosestByPath(myHealers));
+    }
+
     
 }

@@ -7,8 +7,9 @@ import { Ranger } from './ranger.mjs';
 import { Attacker } from './attacker.mjs';
 import { BodyPart } from 'arena/season_alpha/capture_the_flag/basic';
 import { build_quad, Quad } from './quad.mjs';
-import { determine_enemy_state, remove_element_from_array } from './utils.js';
+import { determine_enemy_strategy} from './utils.js';
 import { Tower } from './tower.mjs';
+import { Controller } from './controller.mjs';
 
 
 export function loop() {
@@ -32,37 +33,10 @@ export function loop() {
     for(let creep of attackerCreeps){myAttackers.push(new Attacker(creep))};
     for(let tower of myTowerStructures){myTowers.push(new Tower(tower))};
 
-    determine_enemy_state
-    
-    (enemyCreeps)
+    const enemy_stategy = determine_enemy_strategy(enemyCreeps, enemyFlag);
 
-    // towers
-    for (let tower of myTowers) {
-        tower.run(enemyCreeps)
-    }
-
-    // quads
-    // let myQuad1 = build_quad(myAttackers, myRangers, myHealers);
-    // myQuad1.run(enemyCreeps, enemyFlag);
-
-    // let myQuad2 = build_quad(myAttackers, myRangers, myHealers);
-    // myQuad2.run(enemyCreeps, enemyFlag);
-
-    // healers
-    for (let myHealer of myHealers){
-        myHealer.run(myCreeps, enemyFlag, bodyParts);
-    }
-    // rangers
-
-    for (let myRanger of myRangers) {
-        myRanger.run(enemyCreeps, enemyFlag, bodyParts);
-    }
-
-    // atackers
-    for (let myAttacker of myAttackers) {
-        myAttacker.run(enemyCreeps, enemyFlag, bodyParts);
-    }
-
-
+    var controller = new Controller(myCreeps, enemyCreeps, enemyFlag, myHealers, 
+        myRangers, myAttackers, myTowers, bodyParts)
+    controller.run()
 
 }
