@@ -7,8 +7,8 @@ export class superCreep extends Creep {
         this.creep = creep;
     }
 
-    search_for_bodyParts(bodyParts, wanted_bodyParts) {
-        let near_bodyParts = this.creep.findInRange(bodyParts, 10);
+    search_for_bodyParts(bodyParts, wanted_bodyParts, range=10) {
+        let near_bodyParts = this.creep.findInRange(bodyParts, range);
         
      //    console.log('near bodyparts: ', near_bodyParts);
  
@@ -48,8 +48,23 @@ export class superCreep extends Creep {
         }
     }
 
+    assess_health() {
+        var hit_ratio = this.creep.hits/this.creep.hitsMax
+        if (hit_ratio <= 0.8){
+            return false
+        } else{
+            return true
+        }
+
+    }
+
     move_to_nearest_healer(myHealers) {
-       this.moveTo(this.creep.findClosestByPath(myHealers));
+        console.log('myHealers: ', myHealers)
+        console.log('creep ', this.creep.id, 'is moving to nearest healer')
+        let healerCreeps = myHealers.map(healer => healer.creep)
+        let nearest_healer = this.creep.findClosestByPath(healerCreeps)
+        console.log('nearest healer: ', nearest_healer)
+        this.moveTo(nearest_healer);
     }
 
     

@@ -7,9 +7,9 @@ import { Ranger } from './ranger.mjs';
 import { Attacker } from './attacker.mjs';
 import { BodyPart } from 'arena/season_alpha/capture_the_flag/basic';
 import { build_quad, Quad } from './quad.mjs';
-import { determine_enemy_strategy} from './utils.js';
 import { Tower } from './tower.mjs';
 import { Controller } from './controller.mjs';
+import { determine_enemy_strategy } from './utils.js';
 
 
 export function loop() {
@@ -18,6 +18,7 @@ export function loop() {
     var enemyCreeps = getObjectsByPrototype(Creep).filter(creep =>!creep.my);
     var bodyParts = getObjectsByPrototype(BodyPart);
     var enemyFlag = getObjectsByPrototype(Flag).find(object => !object.my);
+    var myFlag = getObjectsByPrototype(Flag).find(object => object.my);
 
     var myHealers = [];
     var myRangers = [];
@@ -33,9 +34,7 @@ export function loop() {
     for(let creep of attackerCreeps){myAttackers.push(new Attacker(creep))};
     for(let tower of myTowerStructures){myTowers.push(new Tower(tower))};
 
-    const enemy_stategy = determine_enemy_strategy(enemyCreeps, enemyFlag);
-
-    var controller = new Controller(myCreeps, enemyCreeps, enemyFlag, myHealers, 
+    var controller = new Controller(myCreeps, enemyCreeps, enemyFlag, myFlag, myHealers, 
         myRangers, myAttackers, myTowers, bodyParts)
     controller.run()
 

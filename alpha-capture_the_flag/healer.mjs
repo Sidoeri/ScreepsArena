@@ -12,14 +12,16 @@ export class Healer extends superCreep {
         this.target = undefined;
     }
 
-    run(myCreeps, enemyFlag, bodyParts) {
-        let bodyPart = this.search_for_bodyParts(bodyParts, [TOUGH, HEAL, MOVE])
+    run_body_part_phase(bodyParts, range){
+        let bodyPart = this.search_for_bodyParts(bodyParts, [TOUGH, HEAL, MOVE], range)
         if (bodyPart) {
             this.acquire_bodyPart(bodyPart)
             remove_element_from_array(bodyParts, bodyPart)
             return
         }
+    }
 
+    run(myCreeps, enemyFlag) {
         if (this.choose_target_by_path(myCreeps)){
             this.heal_target()
         }else{
@@ -27,7 +29,20 @@ export class Healer extends superCreep {
         }
     }
 
-    choose_target_by_path(myCreeps) {
+    run_defensive_strategy(myCreeps, myFlag, range) {
+        if (this.creep.getRangeTo(myFlag) > range){
+            this.creep.moveTo(myFlag)
+        }
+        if (this.choose_target_by_path(myCreeps)){
+            if (this.target.getRangeTo(myFlag) < range+5){
+                this.heal_target()
+            }
+            
+
+        }
+    }
+
+    choose_target_by_path(myCreeps,) {
         var myDamagedCreeps = myCreeps.filter(i => i.my && i.hits < i.hitsMax)
         this.target = this.creep.findClosestByPath(myDamagedCreeps);
         return this.target
