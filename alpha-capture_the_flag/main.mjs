@@ -9,8 +9,6 @@ import { BodyPart } from 'arena/season_alpha/capture_the_flag/basic';
 import { build_quad, Quad } from './quad.mjs';
 import { Tower } from './tower.mjs';
 import { Controller } from './controller.mjs';
-import { determine_enemy_strategy } from './utils.js';
-
 
 export function loop() {
     var myCreeps = getObjectsByPrototype(Creep).filter(object => object.my);
