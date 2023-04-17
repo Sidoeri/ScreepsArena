@@ -17,12 +17,17 @@ export class Attacker extends superCreep {
         }
     }
 
-    run(enemyCreeps, enemyFlag) {
-        if (enemyCreeps.length > 0){
-            let target = this.choose_target_by_path(enemyCreeps) 
+    run(enemyCreeps, enemyFlag, common_target) {
+        if(common_target){
+            this.target = common_target
+            console.log('attacker ', this.creep.id, 'attack enemy', this.target.id)
             this.attack_target()
-        }else (this.creep.moveTo(enemyFlag))
-    }
+      //  if (enemyCreeps.length > 0){
+      //      let target = this.choose_target_by_path(enemyCreeps)
+     //       this.attack_target()
+        }else {this.creep.moveTo(enemyFlag)
+        console.log('attacker ', this.creep.id, 'moving to  enemy flag')}
+        }
 
     run_defensive_strategy(enemyCreeps, myFlag, myHealers, range) {
         if (!this.assess_health()) {

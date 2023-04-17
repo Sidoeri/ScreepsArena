@@ -59,11 +59,11 @@ export class superCreep extends Creep {
     }
 
     move_to_nearest_healer(myHealers) {
-        console.log('myHealers: ', myHealers)
-        console.log('creep ', this.creep.id, 'is moving to nearest healer')
+        //console.log('myHealers: ', myHealers)
+        //console.log('creep ', this.creep.id, 'is moving to nearest healer')
         let healerCreeps = myHealers.map(healer => healer.creep)
         let nearest_healer = this.creep.findClosestByPath(healerCreeps)
-        console.log('nearest healer: ', nearest_healer)
+        //console.log('nearest healer: ', nearest_healer)
         this.moveTo(nearest_healer);
     }
 

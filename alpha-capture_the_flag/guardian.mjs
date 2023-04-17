@@ -11,7 +11,7 @@ export class Guardian extends superCreep {
         this.creep.moveTo(myFlag)
         let target = this.choose_target_by_path(enemyCreeps) 
         if(target){
-            this.creep.attack(this.target)
+            this.creep.rangedAttack(this.target)
         }
         
     }

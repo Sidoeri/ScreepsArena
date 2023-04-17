@@ -1,6 +1,7 @@
 import { getRange, getTerrainAt, getTicks } from "game/utils";
 import { Guardian } from "./guardian.mjs";
 import { get_object_position, remove_element_from_array } from "./utils";
+import { ATTACK, HEAL, RANGED_ATTACK } from 'game/constants';
 
 export class Controller {
     constructor(myCreeps, enemyCreeps, enemyFlag, myFlag, myHealers, myRangers, myAttackers, myTowers, bodyParts) {
@@ -14,20 +15,25 @@ export class Controller {
         this.myTowers = myTowers;
         this.bodyParts = bodyParts;
         this.strategy = 'ACTIVE';
+        this.common_target = undefined;
+        this.attacker_target = undefined
+        this.ranger_target = undefined
                 
     }
 
 
-
     run() {
 
-        let guardian = new Guardian (this.myAttackers[0])
-        guardian.run(this.enemyCreeps, this.myFlag)
-        remove_element_from_array(this.myAttackers, this.myAttackers[0])
+      //  let guardian = new Guardian (this.myRangers[0])
+       // guardian.run(this.enemyCreeps, this.myFlag)
+      //  remove_element_from_array(this.myRangers, this.myRangers[0])
+
+        this.determine_attacker_target()
+        this.determine_ranger_target()
 
         // towers
         for (let tower of this.myTowers) {
-            tower.run(this.enemyCreeps)
+            tower.run(this.enemyCreeps, this.ranger_target)
         }
         
         console.log(this.strategy)
@@ -46,7 +52,7 @@ export class Controller {
        
             for(let creep of this.enemyCreeps){enemy_range_from_flag_tick10.push(getRange(creep, this.enemyFlag))} 
             let active_ranges = enemy_range_from_flag_tick10.filter(x => x > 10);
-            if (active_ranges.length > 3){
+            if (active_ranges.length > 3 && getTicks() <1500){
                 console.log('enemy has active strategy');
                 this.strategy = 'PASSIVE';
     
@@ -110,14 +116,15 @@ export class Controller {
     run_passive_strategy() {
         console.log('run passive strategy')
 
-        this.form_defense_formation()
+       // this.form_defense_formation()
 
-        var closest_enemy = this.myAttackers[0].creep.findClosestByRange(this.enemyCreeps)
+        var closest_enemy = this.myFlag.findClosestByRange(this.enemyCreeps)
+        console.log('closest enemy', closest_enemy.id,' range', this.myFlag.getRangeTo(closest_enemy))
         if(!closest_enemy){
             for (let ranger of this.myRangers){
                 ranger.creep.moveTo(this.enemyFlag)
             }
-        }else if(closest_enemy.getRangeTo(this.myFlag) < 7){
+        }else if(closest_enemy.getRangeTo(this.myFlag) < 10){
             this.attack()
 
             }
@@ -155,7 +162,7 @@ export class Controller {
         //         myRanger.run(this.enemyCreeps, this.enemyFlag, this.myHealers);
         //     }
 
-        //     // atackerss
+        //     // attackers
         //     for (let myAttacker of this.myAttackers) {
         //         myAttacker.run(this.enemyCreeps, this.enemyFlag, this.bodyParts);
         //     }
@@ -171,7 +178,7 @@ export class Controller {
         if (center_x > 10) {position_factor = -1}
 
         for(let i = 0; i < this.myAttackers.length; i++){
-            let new_x = center_x +1*position_factor
+            let new_x = center_x +3*position_factor
             let new_y = center_y +(-2 + i)*position_factor
             // console.log('ranger: ', this.myRangers[i].id,'new_x: ', new_x, 'new_y: ', new_y )
             this.myAttackers[i].creep.moveTo(new_x , new_y)
@@ -196,19 +203,68 @@ export class Controller {
         console.log('attack')
 
         // healers
-        for (let myHealer of this.myHealers){
+       for (let myHealer of this.myHealers){
             myHealer.run(this.myCreeps, this.enemyFlag,);
         }
+/*
         // rangers
-
         for (let myRanger of this.myRangers) {
-            myRanger.run(this.enemyCreeps, this.enemyFlag, this.myHealers);
+            myRanger.run(this.enemyCreeps, this.enemyFlag, this.myHealers, this.ranger_target);
         }
 
-        // atackerss
+        // attackers
         for (let myAttacker of this.myAttackers) {
-            myAttacker.run(this.enemyCreeps, this.enemyFlag);
-        }
+            myAttacker.run(this.enemyCreeps, this.enemyFlag, this.attacker_target);
+        }*/
+    }
+
+   determine_ranger_target() {
+            console.log('determine_ranger_target')
+            let enemyHealerCreeps = this.enemyCreeps.filter(creep => creep.body.some(b => b.type == HEAL));
+            let enemyRangerCreeps = this.enemyCreeps.filter(creep => creep.body.some(b => b.type == RANGED_ATTACK));
+            let enemyAttackerCreeps = this.enemyCreeps.filter(creep => creep.body.some(b => b.type == ATTACK));
+            if (enemyAttackerCreeps.length > 0){
+            console.log('attacker creeps to attack')
+              //  this.attacker_target = this.myFlag.findClosestByPath(enemyHealerCreeps)
+                this.ranger_target = this.find_with_lowest_hit_points(enemyAttackerCreeps)
+                }
+            else if (enemyRangerCreeps.length >0){
+                this.ranger_target = this.find_with_lowest_hit_points(enemyRangerCreeps)}
+            else if (enemyHealerCreeps.length >0){
+               this.ranger_target = this.find_with_lowest_hit_points(enemyHealerCreeps)
+               }
+            else if(this.enemyCreeps.length >0) {
+                this.ranger_target = this.enemyCreeps[0]}
+            else{this.ranger_target = undefined}
+                }
+
+    determine_attacker_target() {
+        if(!this.attacker_target){
+            let enemyHealerCreeps = this.enemyCreeps.filter(creep => creep.body.some(b => b.type == HEAL));
+            let enemyRangerCreeps = this.enemyCreeps.filter(creep => creep.body.some(b => b.type == RANGED_ATTACK));
+            let enemyAttackerCreeps = this.enemyCreeps.filter(creep => creep.body.some(b => b.type == ATTACK));
+
+            if (enemyRangerCreeps.length > 0){
+              //  this.attacker_target = this.myFlag.findClosestByPath(enemyHealerCreeps)
+                this.attacker_target = this.find_with_lowest_hit_points(enemyRangerCreeps)
+                }
+            else if (enemyAttackerCreeps.length >0){
+                this.attacker_target = this.myFlag.find_with_lowest_hit_points(enemyRangerCreeps)}
+            else if (enemyAttackerCreeps.length >0){
+               this.attacker_target = this.myFlag.find_with_lowest_hit_points(enemyAttackerCreeps)
+               }
+            else if(this.enemyCreeps.length >0) {
+                this.attacker_target = this.enemyCreeps[0]}
+            else{this.attacker_target = undefined}
+                } }
+
+    find_with_lowest_hit_points(creeps){
+       creeps.sort((a, b) => (a.hitsMax - a.hits) - (b.hitsMax - b.hits))
+       let wounded_creep = creeps[0]
+       if (wounded_creep.hits == wounded_creep.hitsMax){
+       let closest_creep = this.myFlag.findClosestByRange(creeps)
+       return closest_creep} else{
+       return wounded_creep}
     }
 
                 // quads
