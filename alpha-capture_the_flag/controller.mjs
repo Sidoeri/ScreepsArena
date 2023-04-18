@@ -206,7 +206,7 @@ export class Controller {
        for (let myHealer of this.myHealers){
             myHealer.run(this.myCreeps, this.enemyFlag,);
         }
-/*
+
         // rangers
         for (let myRanger of this.myRangers) {
             myRanger.run(this.enemyCreeps, this.enemyFlag, this.myHealers, this.ranger_target);
@@ -215,7 +215,7 @@ export class Controller {
         // attackers
         for (let myAttacker of this.myAttackers) {
             myAttacker.run(this.enemyCreeps, this.enemyFlag, this.attacker_target);
-        }*/
+        }
     }
 
    determine_ranger_target() {

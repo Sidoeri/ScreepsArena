@@ -31,22 +31,22 @@ export class Healer extends superCreep {
     }
 
     choose_target_by_type_and_path(myCreeps,) {
-        let myDamagedCreeps = myCreeps.filter(i => i.my && i.hits < i.hitsMax)
-        let closestDamagedCreeps = this.creep.findInRange(myDamagedCreeps, 5)
+        let myDamagedCreeps = myCreeps.filter(i => i.my && i.hits < i.hitsMax && i.id != this.creep.id)
+        let closestDamagedCreeps = this.creep.findInRange(myDamagedCreeps, 7)
         if(closestDamagedCreeps){
             let damagedAttackers = closestDamagedCreeps.filter(creep => creep.body.some(b => b.type == ATTACK))
             let damagedRangers = closestDamagedCreeps.filter(creep => creep.body.some(b => b.type == RANGED_ATTACK))
             let damagedHealers = closestDamagedCreeps.filter(creep => creep.body.some(b => b.type == HEAL))
 
-            if(damagedAttackers){
+            if(damagedAttackers[0]){
                 this.target = this.creep.findClosestByPath(damagedAttackers)
                 console.log('healing an attacker')
-            }else if(damagedRangers){
+            }else if(damagedRangers[0]){
                 this.target = this.creep.findClosestByPath(damagedRangers)
                 console.log('healing a ranger')
             }else {
                 this.target = this.creep.findClosestByPath(damagedHealers)
-                console.log('healing closest creep')
+                console.log('healing a healer')
                     }
         }else{
         this.creep.moveTo(this.creep.findClosestByPath(myDamagedCreeps))}
